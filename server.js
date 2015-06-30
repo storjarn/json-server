@@ -15,11 +15,24 @@ function uhoh(err, res) {
     res.writeHead(500, {
         'Content-Type': config.contentType
     });
-    res.end(JSON.stringify(err));
+    res.end(JSON.stringify(err, null, 4));
 }
 
-function fwrite(data, fileName) {
-    fs.writeFileSync(fileName, JSON.stringify(data, null, 4));
+function fwrite(data, fileName, callback) {
+    fs.writeFile(fileName, JSON.stringify(data, null, 4), callback || function(err) {
+        console.error(err);
+    });
+}
+
+function fread(path, callback) {
+    fs.readFile(path, {
+        encoding: 'utf8'
+    }, callback || function (err, data) {
+      if (err) {
+          console.error(err);
+      }
+      console.log(data);
+    });
 }
 
 function ok(data, res) {
@@ -30,6 +43,12 @@ function ok(data, res) {
 }
 
 http.createServer(function (req, res) {
+    res.ok = function(data) {
+        ok(data, res);
+    };
+    res.uhoh = function(err) {
+        uhoh(err, res);
+    };
     var path = req.url;
     var realPath = Path.join(__dirname, config.fileBase, path);
     var parentPath = Path.dirname(realPath);
@@ -41,21 +60,32 @@ http.createServer(function (req, res) {
         case 'patch':
             postdata(req, function (error, data) {
                 if (error) {
-                    uhoh(error, res);
+                    res.uhoh(error);
                 } else {
                     mkdirp(parentPath, function (err) {
                         if (err) {
-                            uhoh(err, res);
+                            res.uhoh(err);
                         } else {
-                            fwrite(data, fileName);
-                            ok(data, res);
+                            fwrite(data, fileName, function(err) {
+                                if (err) {
+                                    res.uhoh(err);
+                                } else {
+                                    res.ok(data);
+                                }
+                            });
                         }
                     });
                 }
             });
             break;
         default:
-            ok('Hello World', res);
+            fread(fileName, function(err, data) {
+                if (err) {
+                    res.uhoh(err);
+                } else {
+                    res.ok(JSON.parse(data));
+                }
+            });
     }
 }).listen(config.port, '127.0.0.1');
 
