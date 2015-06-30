@@ -80,6 +80,9 @@ var middleWare = [
                     });
                 });
                 break;
+            case 'delete':
+                res.uhoh('Not Implemented');
+                break;
             default:
                 fread(fileName, function(err, data) {
                     res.uhoh(err);
