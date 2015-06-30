@@ -10,10 +10,11 @@ var config = {
     contentType: 'application/json'
 };
 
-function uhoh(err, res) {
+function uhoh(err, res, code) {
     if (err) {
-        console.error(err);
-        res.writeHead(500, {
+        code = code || 500;
+        console.error(code, err);
+        res.writeHead(code, {
             'Content-Type': config.contentType
         });
         res.end(JSON.stringify(err, null, 4));
@@ -54,8 +55,8 @@ var middleWare = [
         res.ok = function(data) {
             ok(data, res);
         };
-        res.uhoh = function(err) {
-            uhoh(err, res);
+        res.uhoh = function(err, code) {
+            uhoh(err, res, code || err.number || err.code);
         };
     },
 
@@ -81,7 +82,7 @@ var middleWare = [
                 });
                 break;
             case 'delete':
-                res.uhoh('Not Implemented');
+                res.uhoh('Not Implemented', 501);
                 break;
             default:
                 fread(fileName, function(err, data) {
