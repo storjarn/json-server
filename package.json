@@ -1,0 +1,24 @@
+{
+  "name": "json-server",
+  "version": "1.0.0",
+  "description": "Simple, unsecured file-based json server in Node.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/storjarn/json-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/storjarn/json-server/issues"
+  },
+  "homepage": "https://github.com/storjarn/json-server",
+  "dependencies": {
+    "mkdirp": "^0.5.1",
+    "post-data": "0.0.0",
+    "querystring": "^0.2.0"
+  }
+}
