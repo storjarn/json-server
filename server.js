@@ -11,11 +11,13 @@ var config = {
 };
 
 function uhoh(err, res) {
-    console.error(err);
-    res.writeHead(500, {
-        'Content-Type': config.contentType
-    });
-    res.end(JSON.stringify(err, null, 4));
+    if (err) {
+        console.error(err);
+        res.writeHead(500, {
+            'Content-Type': config.contentType
+        });
+        res.end(JSON.stringify(err, null, 4));
+    }
 }
 
 function fwrite(data, fileName, callback) {
@@ -42,50 +44,55 @@ function ok(data, res) {
     res.end(JSON.stringify(data));
 }
 
-http.createServer(function (req, res) {
-    res.ok = function(data) {
-        ok(data, res);
-    };
-    res.uhoh = function(err) {
-        uhoh(err, res);
-    };
-    var path = req.url;
-    var realPath = Path.join(__dirname, config.fileBase, path);
-    var parentPath = Path.dirname(realPath);
-    var fileName = realPath + ".json";
+var middleWare = [
 
-    switch (req.method.toLowerCase()) {
-        case 'post':
-        case 'put':
-        case 'patch':
-            postdata(req, function (error, data) {
-                if (error) {
+    function (req, res) {
+        console.log(req.method.toUpperCase(), ':', req.url);
+    },
+
+    function (req, res) {
+        res.ok = function(data) {
+            ok(data, res);
+        };
+        res.uhoh = function(err) {
+            uhoh(err, res);
+        };
+    },
+
+    function (req, res) {
+        var path = req.url;
+        var realPath = Path.join(__dirname, config.fileBase, path);
+        var parentPath = Path.dirname(realPath);
+        var fileName = realPath + ".json";
+
+        switch (req.method.toLowerCase()) {
+            case 'post':
+            case 'put':
+            case 'patch':
+                postdata(req, function (error, data) {
                     res.uhoh(error);
-                } else {
                     mkdirp(parentPath, function (err) {
-                        if (err) {
+                        res.uhoh(err);
+                        fwrite(data, fileName, function(err) {
                             res.uhoh(err);
-                        } else {
-                            fwrite(data, fileName, function(err) {
-                                if (err) {
-                                    res.uhoh(err);
-                                } else {
-                                    res.ok(data);
-                                }
-                            });
-                        }
+                            res.ok(data);
+                        });
                     });
-                }
-            });
-            break;
-        default:
-            fread(fileName, function(err, data) {
-                if (err) {
+                });
+                break;
+            default:
+                fread(fileName, function(err, data) {
                     res.uhoh(err);
-                } else {
                     res.ok(JSON.parse(data));
-                }
-            });
+                });
+        }
+    }
+
+];
+
+http.createServer(function (req, res) {
+    for(var i = 0; i < middleWare.length; ++i) {
+        middleWare[i](req, res);
     }
 }).listen(config.port, '127.0.0.1');
 
