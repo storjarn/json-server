@@ -10,7 +10,10 @@ var rmdir = require('rmdir');
 var config = {
     port: 6504, //JSON
     fileBase: './data/',
-    contentType: 'application/json'
+    contentType: 'application/json',
+    ignore: [
+        '.DS_Store'
+    ]
 };
 
 function uhoh(err, res, code) {
@@ -227,6 +230,16 @@ var middleWare = [
                                 var dirs = [];
                                 var fileNames = [];
                                 for(var i = 0; i < files.length; ++i) {
+                                    var ignore = false;
+                                    for(var j = 0; j < config.ignore.length; ++j) {
+                                        if (files[i].toUpperCase() == config.ignore[j].toUpperCase()) {
+                                            ignore = true;
+                                            break;
+                                        }
+                                    }
+                                    if (ignore) {
+                                        continue;
+                                    }
                                     if (files[i].indexOf('.json') > -1) {
                                         fileNames.push(files[i]);
                                     } else {
