@@ -35,7 +35,7 @@ function ok(data, res) {
 }
 
 function canFile(path) {
-    return Path.resolve(path).indexOf(Path.resolve(config.fileBase)) > -1 /*&& Path.dirname(path) !== Path.resolve(config.fileBase)*/;
+    return Path.resolve(path).indexOf(Path.resolve(config.fileBase)) > -1 /*&& Path.dirname(path) !== Path.resolve(config.fileBase)*/ ;
 }
 
 function fwrite(data, fileName, callback) {
@@ -71,7 +71,7 @@ function fread(path, callback) {
 function dread(path, callback) {
     var willRead = path && canFile(path);
     if (willRead) {
-        fs.readdir(path, callback || function(err, files) {
+        fs.readdir(path, callback || function (err, files) {
             if (err) {
                 throw err;
             }
@@ -101,9 +101,6 @@ function ddelete(path, callback) {
         rmdir(path, callback || function () {
             console.log(path, 'deleted');
         });
-        // fs.rmdir(path, callback || function() {
-        //     console.log(path, 'deleted');
-        // });
     } else {
         callback();
     }
@@ -229,9 +226,9 @@ var middleWare = [
                             dread(realPath, function (err, files) {
                                 var dirs = [];
                                 var fileNames = [];
-                                for(var i = 0; i < files.length; ++i) {
+                                for (var i = 0; i < files.length; ++i) {
                                     var ignore = false;
-                                    for(var j = 0; j < config.ignore.length; ++j) {
+                                    for (var j = 0; j < config.ignore.length; ++j) {
                                         if (files[i].toUpperCase() == config.ignore[j].toUpperCase()) {
                                             ignore = true;
                                             break;
@@ -272,6 +269,6 @@ http.createServer(function (req, res) {
         res.uhoh(ex);
     }
 
-}).listen(config.port, '127.0.0.1');
+}).listen(config.port, '0.0.0.0');
 
-console.log('Server running at http://127.0.0.1:' + config.port + '/');
+console.log('Server running at http://0.0.0.0:' + config.port + '/');
