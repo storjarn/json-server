@@ -32,7 +32,6 @@ function ok(data, res) {
 }
 
 function canFile(path) {
-    console.log(Path.resolve(path), Path.resolve(config.fileBase));
     return Path.resolve(path).indexOf(Path.resolve(config.fileBase)) > -1 /*&& Path.dirname(path) !== Path.resolve(config.fileBase)*/;
 }
 
@@ -60,6 +59,20 @@ function fread(path, callback) {
                 throw err;
             }
             console.log(data);
+        });
+    } else {
+        callback(new Error('Oops'));
+    }
+}
+
+function dread(path, callback) {
+    var willRead = path && canFile(path);
+    if (willRead) {
+        fs.readdir(path, callback || function(err, files) {
+            if (err) {
+                throw err;
+            }
+            console.log(files);
         });
     } else {
         callback(new Error('Oops'));
@@ -199,7 +212,6 @@ var middleWare = [
                 }
             });
 
-
             break;
         default:
             fexists(fileName, function (exists) {
@@ -209,7 +221,18 @@ var middleWare = [
                         res.ok(JSON.parse(data));
                     });
                 } else {
-                    res.uhoh('Not Found', 404);
+                    dexists(realPath, function (exists) {
+                        if (exists) {
+                            dread(realPath, function (err, files) {
+                                res.ok({
+                                    directory: Path.normalize(path + '/'),
+                                    files: files
+                                });
+                            });
+                        } else {
+                            res.uhoh('Not Found', 404);
+                        }
+                    });
                 }
             });
         }
