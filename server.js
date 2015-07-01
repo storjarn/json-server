@@ -224,9 +224,19 @@ var middleWare = [
                     dexists(realPath, function (exists) {
                         if (exists) {
                             dread(realPath, function (err, files) {
+                                var dirs = [];
+                                var fileNames = [];
+                                for(var i = 0; i < files.length; ++i) {
+                                    if (files[i].indexOf('.json') > -1) {
+                                        fileNames.push(files[i]);
+                                    } else {
+                                        dirs.push(files[i]);
+                                    }
+                                }
                                 res.ok({
                                     directory: Path.normalize(path + '/'),
-                                    files: files
+                                    files: fileNames,
+                                    dirs: dirs
                                 });
                             });
                         } else {
