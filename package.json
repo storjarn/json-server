@@ -4,6 +4,7 @@
   "description": "Simple, unsecured file-based json server in Node.js",
   "main": "index.js",
   "scripts": {
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,6 +20,7 @@
   "dependencies": {
     "mkdirp": "^0.5.1",
     "post-data": "0.0.0",
-    "querystring": "^0.2.0"
+    "querystring": "^0.2.0",
+    "rmdir": "^1.1.0"
   }
 }
