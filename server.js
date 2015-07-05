@@ -144,7 +144,7 @@ var middleWare = [
         //CORS enabled
         if (!res.headersSent) {
             res.setHeader("Access-Control-Allow-Origin", "*");
-            res.setHeader("Access-Control-Allow-Headers", "X-Requested-With");
+            res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, Content-Type");
         }
     },
 
@@ -175,6 +175,9 @@ var middleWare = [
                 res.uhoh(error);
                 mkdirp(parentPath, function (err) {
                     res.uhoh(err);
+                    if (typeof data === 'string') {
+                        data = JSON.parse(data);
+                    }
                     fwrite(data, fileName, function (err) {
                         res.uhoh(err);
                         res.ok(data);
